@@ -7,13 +7,15 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res.status(400).json({ message: "All fields are required" });
+      res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     const alreadyExist = await User.findOne({ email });
 
     if (alreadyExist) {
-      res.status(400).json({ message: "User already exists" });
+      res.status(400).json({ success: false, message: "User already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -27,13 +29,50 @@ export const register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
-console.log(process.env.JWT_SECRET, "secret");
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email or password" });
+    }
+
+    res.status(200).json({
+      success: true,
+      token: generateToken(user._id),
+      user: { id: user._id, name: user.name, email: user.email },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
