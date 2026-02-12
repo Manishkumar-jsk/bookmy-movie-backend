@@ -1,81 +1,33 @@
-import User from "../models/User.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+//services
+import { loginService, registerService } from "../services/auth.service.js";
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
-    }
-
-    const alreadyExist = await User.findOne({ email });
-
-    if (alreadyExist) {
-      res.status(400).json({ success: false, message: "User already exists" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = await User.create({ name, email, password: hashedPassword });
+    const { user, token } = registerService({ name, email, password });
 
     res.status(201).json({
       success: true,
-      token: generateToken(user._id),
+      token: token,
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
-    }
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email or password" });
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email or password" });
-    }
-
+    const { user, token } = await loginService({ email, password });
     res.status(200).json({
       success: true,
-      token: generateToken(user._id),
+      token: token,
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
-};
-
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
 };
