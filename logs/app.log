@@ -2,3 +2,12 @@
 [2026-02-12T15:23:20.377Z] POST /api/booking 201 - 33ms
 [2026-02-12T15:23:24.344Z] POST /api/booking 201 - 8ms
 [2026-02-12T15:23:38.483Z] POST /api/booking 201 - 22ms
+[2026-02-15T13:46:22.454Z] GET /api/events 200 - 15ms
+[2026-02-15T15:33:54.526Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 19ms
+[2026-02-15T15:35:44.380Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 21ms
+[2026-02-15T15:35:46.315Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 4ms
+[2026-02-15T15:35:47.570Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 2ms
+[2026-02-15T15:35:51.949Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 3ms
+[2026-02-15T15:35:52.973Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 3ms
+[2026-02-15T15:35:53.901Z] GET /api/events/698dcc5bb7f9ff57b944dd5c 200 - 3ms
+[2026-02-15T15:35:57.789Z] GET /api/events/698dcc5bb7f9ff57b944 400 - 3ms
