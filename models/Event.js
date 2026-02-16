@@ -11,6 +11,10 @@ const eventSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  image:{
+    type:String,
+    trim:true
+  },
   date: {
     type: Date,
     required: true,
@@ -37,6 +41,11 @@ const eventSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  category:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Category",
+    required:true
+  }
 });
 
 export default mongoose.model("Event", eventSchema);
