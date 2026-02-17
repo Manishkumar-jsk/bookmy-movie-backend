@@ -8,6 +8,7 @@ import bookingRoutes from "./routes/booking.routes.js";
 import userRoutes from "./routes/user.routes.js"
 import Error from "./middleware/error.middleware.js";
 import logs from "./middleware/log.middleware.js";
+import categoryRoutes from "./routes/category.routes.js";
 
 dotenv.config();
 connectDB();
@@ -25,7 +26,8 @@ const PORT = process.env.PORT || 5000;
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/booking", bookingRoutes);
-app.use("/api/user",userRoutes)
+app.use("/api/user",userRoutes);
+app.use("/api/category",categoryRoutes)
 
 app.use(Error)
 

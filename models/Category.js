@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import slugify from "slugify"
 
 const categorySchema = new mongoose.Schema(
   {
@@ -10,7 +11,6 @@ const categorySchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-      required: true,
       unique: true,
       lowercase: true,
     },
@@ -29,5 +29,24 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+categorySchema.pre("save", async function () {
+  if (!this.isModified("name")) return;
+
+  let baseSlug = slugify(this.name, {
+    lower: true,
+    strict: true,
+  });
+
+  let slug = baseSlug;
+  let count = 1;
+
+  while (await mongoose.models.Category.exists({ slug })) {
+    slug = `${baseSlug}-${count}`;
+    count++;
+  }
+
+  this.slug = slug;
+});
 
 export default mongoose.model("Category", categorySchema);

@@ -1,5 +1,6 @@
 //models
 import Event from "../models/Event.js";
+import Category from "../models/Category.js";
 
 //utils
 import AppError from "../utils/AppError.js";
@@ -16,6 +17,7 @@ export const createEventService = async ({
   totalTickets,
   availableTickets,
   userId,
+  category,
 }) => {
   const parsed = createEventSchema.safeParse({
     title,
@@ -25,16 +27,19 @@ export const createEventService = async ({
     price,
     totalTickets,
     availableTickets,
+    category,
   });
   if (!parsed.success) {
     throw new AppError(parsed?.error?.issues[0].message, 400);
   }
 
   const data = parsed?.data;
+  const categorys = await Category.findOne({ name: category });
 
   const event = await Event.create({
     ...data,
     createdBy: userId,
+    category: categorys._id,
   });
 
   return event;

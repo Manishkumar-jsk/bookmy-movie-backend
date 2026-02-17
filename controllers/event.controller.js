@@ -16,6 +16,7 @@ export const createEvent = async (req, res, next) => {
       price,
       totalTickets,
       availableTickets,
+      category,
     } = req.body;
 
     await createEventService({
@@ -27,6 +28,7 @@ export const createEvent = async (req, res, next) => {
       totalTickets,
       availableTickets,
       userId: req.user.id,
+      category,
     });
 
     res.status(201).json({

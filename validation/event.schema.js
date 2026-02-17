@@ -24,6 +24,7 @@ export const createEventSchema = z.object({
       invalid_type_error: "Available Ticket must be a number",
     })
     .min(0),
+  category:z.string({required_error:"Category is required"}).trim()
 });
 
 
