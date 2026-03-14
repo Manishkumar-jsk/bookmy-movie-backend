@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import slugify from "slugify"
+import slugify from "slugify";
 
 const categorySchema = new mongoose.Schema(
   {
@@ -13,6 +13,10 @@ const categorySchema = new mongoose.Schema(
       type: String,
       unique: true,
       lowercase: true,
+    },
+    image: {
+      type: String,
+      trim: true,
     },
     description: {
       type: String,

@@ -8,14 +8,13 @@ export const createCategoryService = async ({
   isActive,
   userId,
 }) => {
-  
-  const parsed = createCategorySchema.safeParse({name});
+  const parsed = createCategorySchema.safeParse({ name });
 
   if (!parsed.success) {
     throw new AppError(parsed.error.issues[0].message, 400);
   }
 
-  const data = parsed.data
+  const data = parsed.data;
 
   const existingCategory = await Category.findOne({
     name: { $regex: `^${data?.name}`, $options: "i" },
@@ -33,4 +32,10 @@ export const createCategoryService = async ({
   });
 
   return category;
+};
+
+export const getAllCategoryService = async () => {
+  const categories = await Category.find({});
+
+  return categories;
 };

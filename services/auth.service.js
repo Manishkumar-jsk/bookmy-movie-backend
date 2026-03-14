@@ -31,7 +31,11 @@ export const registerService = async ({ name, email, password }) => {
 
   const user = await User.create({ ...data, password: hashedPassword });
 
-  return { user, token: generateToken(user._id) };
+  return {
+    user,
+    accesstoken: generateAccessToken(user._id),
+    refreshToken: generateRefreshToken(user._id),
+  };
 };
 
 export const loginService = async ({ email, password }) => {
@@ -55,11 +59,21 @@ export const loginService = async ({ email, password }) => {
     throw new AppError("Invalid email or password", 400);
   }
 
-  return { user, token: generateToken(user._id) };
+  return {
+    user,
+    accesstoken: generateAccessToken(user._id),
+    refreshToken: generateRefreshToken(user._id),
+  };
 };
 
-const generateToken = (id) => {
+const generateAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: "15m",
+  });
+};
+
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.REFRESH_SECRET, {
     expiresIn: "7d",
   });
 };

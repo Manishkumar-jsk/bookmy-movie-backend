@@ -13,21 +13,20 @@ export const createEventService = async ({
   description,
   date,
   location,
-  price,
-  totalTickets,
-  availableTickets,
   userId,
+  image,
   category,
+  ticketTypes,
 }) => {
+  console.log(ticketTypes, "ticbh");
+
   const parsed = createEventSchema.safeParse({
     title,
     description,
     date,
     location,
-    price,
-    totalTickets,
-    availableTickets,
     category,
+    ticketTypes,
   });
   if (!parsed.success) {
     throw new AppError(parsed?.error?.issues[0].message, 400);
@@ -36,8 +35,11 @@ export const createEventService = async ({
   const data = parsed?.data;
   const categorys = await Category.findOne({ name: category });
 
+  console.log(data, "data");
+
   const event = await Event.create({
     ...data,
+    image: image,
     createdBy: userId,
     category: categorys._id,
   });
@@ -46,7 +48,7 @@ export const createEventService = async ({
 };
 
 export const getEventsService = async () => {
-  const events = await Event.find();
+  const events = await Event.find().populate("category", "name");
 
   return events;
 };

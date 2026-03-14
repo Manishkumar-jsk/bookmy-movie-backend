@@ -8,27 +8,20 @@ import {
 
 export const createEvent = async (req, res, next) => {
   try {
-    const {
-      title,
-      description,
-      date,
-      location,
-      price,
-      totalTickets,
-      availableTickets,
-      category,
-    } = req.body;
+    const { title, description, date, image, location, ticketTypes, category } =
+      req.body;
+
+    console.log(ticketTypes);
 
     await createEventService({
       title,
       description,
       date,
       location,
-      price,
-      totalTickets,
-      availableTickets,
       userId: req.user.id,
+      image,
       category,
+      ticketTypes,
     });
 
     res.status(201).json({
