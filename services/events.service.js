@@ -65,6 +65,61 @@ export const getEventsByIdService = async ({ id }) => {
   return event;
 };
 
+export const updateEventService = async ({
+  id,
+  title,
+  description,
+  date,
+  location,
+  userId,
+  image,
+  category,
+  ticketTypes,
+}) => {
+
+  if(!id){
+    throw new AppError("Id is missing",400)
+  }
+
+  const parsed = createEventSchema.safeParse({
+    title,
+    description,
+    date,
+    location,
+    category,
+    ticketTypes,
+  });
+
+  if (!parsed.success) {
+    throw new AppError(parsed?.error?.issues[0].message, 400);
+  }
+
+  const data = parsed?.data;
+  const categorys = await Category.findOne({ name: category });
+
+  if(!categorys){
+    throw new AppError("Category not found",404)
+  }
+
+  const existingEvent = await Event.findOne({_id:id});
+
+  if(!existingEvent){
+    throw new AppError("Event not found",404)
+  }
+
+
+  const event = await Event.findOneAndUpdate({_id:id},{
+    $set:{
+      ...data,
+      ...(image && { image: image }),
+      createdBy: userId,
+      category: categorys._id,
+    }
+  },{new:true});
+
+  return event;
+};
+
 export const deleteEventService = async ({ id }) => {
   const parsed = idSchema.safeParse({ id });
   const data = parsed?.data;
