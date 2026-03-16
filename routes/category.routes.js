@@ -4,10 +4,11 @@ import {
   createCategory,
   getAllCategories,
 } from "../controllers/category.controller.js";
+import authorizeRoles from "../middleware/authorizeRoles.middleware.js";
 
 const router = Router();
 
-router.post("/", auth, createCategory);
+router.post("/", auth, authorizeRoles("admin", "eventOwner"), createCategory);
 router.get("/", getAllCategories);
 
 export default router;

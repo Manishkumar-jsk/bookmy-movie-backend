@@ -10,11 +10,14 @@ import Error from "./middleware/error.middleware.js";
 import logs from "./middleware/log.middleware.js";
 import categoryRoutes from "./routes/category.routes.js";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());

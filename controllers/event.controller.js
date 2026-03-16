@@ -8,10 +8,13 @@ import {
 
 export const createEvent = async (req, res, next) => {
   try {
-    const { title, description, date, image, location, ticketTypes, category } =
+    const { title, description, date, location, ticketTypes, category } =
       req.body;
 
-    console.log(ticketTypes);
+    const image = req.file
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+      : "";
+    let parsedTicketTypes = JSON.parse(ticketTypes);
 
     await createEventService({
       title,
@@ -21,7 +24,11 @@ export const createEvent = async (req, res, next) => {
       userId: req.user.id,
       image,
       category,
-      ticketTypes,
+      ticketTypes: parsedTicketTypes.map((ticket) => ({
+        type: ticket.type,
+        price: Number(ticket.price),
+        totalSeats: Number(ticket.totalSeats),
+      })),
     });
 
     res.status(201).json({

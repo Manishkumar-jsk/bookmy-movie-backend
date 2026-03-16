@@ -31,10 +31,16 @@ export const registerService = async ({ name, email, password }) => {
 
   const user = await User.create({ ...data, password: hashedPassword });
 
+  const signaturePayload = {
+    id:user._id,
+    name:user.name,
+    email:user.email,
+    role:user.role
+  }
   return {
     user,
-    accesstoken: generateAccessToken(user._id),
-    refreshToken: generateRefreshToken(user._id),
+    accesstoken: generateAccessToken(signaturePayload),
+    refreshToken: generateRefreshToken(signaturePayload),
   };
 };
 
@@ -59,21 +65,28 @@ export const loginService = async ({ email, password }) => {
     throw new AppError("Invalid email or password", 400);
   }
 
+  const signaturePayload = {
+    id:user._id,
+    name:user.name,
+    email:user.email,
+    role:user.role
+  }
+
   return {
     user,
-    accesstoken: generateAccessToken(user._id),
-    refreshToken: generateRefreshToken(user._id),
+    accesstoken: generateAccessToken(signaturePayload),
+    refreshToken: generateRefreshToken(signaturePayload),
   };
 };
 
-const generateAccessToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateAccessToken = (signaturePayload) => {
+  return jwt.sign(signaturePayload, process.env.JWT_SECRET, {
     expiresIn: "15m",
   });
 };
 
-const generateRefreshToken = (id) => {
-  return jwt.sign({ id }, process.env.REFRESH_SECRET, {
+const generateRefreshToken = (signaturePayload) => {
+  return jwt.sign(signaturePayload, process.env.REFRESH_SECRET, {
     expiresIn: "7d",
   });
 };
