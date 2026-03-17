@@ -7,8 +7,8 @@ const router = Router();
 
 router.get('/me',auth,user);
 router.post('/add',auth,authorizeRoles("admin"),addUser);
-router.post('/update',auth,authorizeRoles("admin"),updateUser);
-router.post('/delete/:id',auth,authorizeRoles("admin"),deleteUser);
+router.put('/update',auth,authorizeRoles("admin"),updateUser);
+router.delete('/delete/:id',auth,authorizeRoles("admin"),deleteUser);
 router.get('/',auth,authorizeRoles("admin"),getUser)
 
 export default router
