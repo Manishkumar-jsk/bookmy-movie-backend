@@ -1,6 +1,7 @@
 import {
   deleteUserService,
   getUserService,
+  getUsersService,
   updateUserService,
 } from "../services/user.service.js";
 
@@ -12,6 +13,15 @@ export const user = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUser = async (req,res,next) => {
+  try {
+    const users = await getUsersService();
+    res.status(200).json({success:true,users});
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const addUser = async (req, res, next) => {
   try {

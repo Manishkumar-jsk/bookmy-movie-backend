@@ -15,6 +15,18 @@ export const getUserService = async ({ userId }) => {
   return user;
 };
 
+export const getUsersService = async () => {
+  const users = await User.find({}).select(
+    "_id name email role",
+  );
+
+  if (!users) {
+    throw new AppError("User not found", 404);
+  }
+
+  return users;
+};
+
 export const addUserService = async ({ name, email, role }) => {
   const parsed = addUserSchema.safeParse({ name, email });
 
