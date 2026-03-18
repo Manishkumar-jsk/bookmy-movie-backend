@@ -2,6 +2,7 @@ import AppError from "../utils/AppError.js";
 import User from "../models/User.js";
 import { addUserSchema } from "../validation/user.schema.js";
 import { idSchema } from "../validation/event.schema.js";
+import bcrypt from "bcryptjs";
 
 export const getUserService = async ({ userId }) => {
   const user = await User.findById({ _id: userId }).select(
