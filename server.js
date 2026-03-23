@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.routes.js";
 import Error from "./middleware/error.middleware.js";
 import logs from "./middleware/log.middleware.js";
 import categoryRoutes from "./routes/category.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 import cookieParser from "cookie-parser";
 import path from "path";
 
@@ -31,6 +32,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.use(Error);
 
