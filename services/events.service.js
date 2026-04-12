@@ -47,8 +47,12 @@ export const createEventService = async ({
   return event;
 };
 
-export const getEventsService = async () => {
-  const events = await Event.find().populate("category", "name");
+export const getEventsService = async (location) => {
+  const filter = {};
+  if (location) {
+    filter.location = { $regex: location, $options: "i" };
+  }
+  const events = await Event.find(filter).populate("category", "name");
 
   return events;
 };
@@ -76,9 +80,8 @@ export const updateEventService = async ({
   category,
   ticketTypes,
 }) => {
-
-  if(!id){
-    throw new AppError("Id is missing",400)
+  if (!id) {
+    throw new AppError("Id is missing", 400);
   }
 
   const parsed = createEventSchema.safeParse({
@@ -97,25 +100,28 @@ export const updateEventService = async ({
   const data = parsed?.data;
   const categorys = await Category.findOne({ name: category });
 
-  if(!categorys){
-    throw new AppError("Category not found",404)
+  if (!categorys) {
+    throw new AppError("Category not found", 404);
   }
 
-  const existingEvent = await Event.findOne({_id:id});
+  const existingEvent = await Event.findOne({ _id: id });
 
-  if(!existingEvent){
-    throw new AppError("Event not found",404)
+  if (!existingEvent) {
+    throw new AppError("Event not found", 404);
   }
 
-
-  const event = await Event.findOneAndUpdate({_id:id},{
-    $set:{
-      ...data,
-      ...(image && { image: image }),
-      createdBy: userId,
-      category: categorys._id,
-    }
-  },{new:true});
+  const event = await Event.findOneAndUpdate(
+    { _id: id },
+    {
+      $set: {
+        ...data,
+        ...(image && { image: image }),
+        createdBy: userId,
+        category: categorys._id,
+      },
+    },
+    { new: true },
+  );
 
   return event;
 };

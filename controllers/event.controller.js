@@ -1,4 +1,5 @@
 //services
+import Event from "../models/Event.js";
 import {
   createEventService,
   deleteEventService,
@@ -81,7 +82,8 @@ export const updateEvent = async (req,res,next) => {
 
 export const getEvents = async (req, res, next) => {
   try {
-    const events = await getEventsService();
+    const location = req?.query?.location;
+    const events = await getEventsService(location);
     res.status(200).json({ success: true, data: events });
   } catch (error) {
     next(error);
@@ -110,3 +112,12 @@ export const deleteEvent = async (req, res, next) => {
     next(error);
   }
 };
+
+export const eventsLocation = async(req,res,next) => {
+  try {
+    const locations = await Event.find({}).distinct("location");
+    res.status(200).json({success:true,locations})
+  } catch (error) {
+    next(error)
+  }
+}

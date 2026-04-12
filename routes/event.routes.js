@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createEvent,
   deleteEvent,
+  eventsLocation,
   getEventById,
   getEvents,
   updateEvent,
@@ -12,10 +13,11 @@ import { upload } from "../middleware/upload.middleware.js";
 
 const router = Router();
 
-router.post("/", auth, authorizeRoles("admin", "eventOwner"),upload.single("image"), createEvent);
 router.get("/", getEvents);
+router.post("/", auth, authorizeRoles("admin", "eventOwner"),upload.single("image"), createEvent);
+router.put("/",auth,authorizeRoles("admin","eventOwner"),upload.single("image"),updateEvent);
+router.get("/events-location",eventsLocation);
 router.get("/:id", getEventById);
-router.put("/",auth,authorizeRoles("admin","eventOwner"),upload.single("image"),updateEvent)
 router.delete("/:id", auth, authorizeRoles("admin","eventOwner"), deleteEvent);
 
 export default router;

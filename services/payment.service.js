@@ -11,10 +11,7 @@ export const createOrder = async ({
   userId,
 }) => {
   const event = await Event.findById(eventId);
-
-  if (!event) {
-    throw new AppError("Event not found", 404);
-  }
+  if (!event) throw new AppError("Event not found", 404);
 
   if (new Date(event.date) < new Date()) {
     throw new AppError("Event already completed", 400);
@@ -23,29 +20,15 @@ export const createOrder = async ({
   const selectedTicket = event.ticketTypes.find((t) => t.type === ticketType);
 
   if (!selectedTicket) {
-    throw new AppError(`${ticketType} ticket type is not found`, 404);
+    throw new AppError(`${ticketType} ticket type not found`, 404);
   }
 
   if (selectedTicket.availableSeats < quantity) {
-    throw new AppError(
-      `Only ${selectedTicket.availableSeats} seats are left in ${ticketType}`,
-      400,
-    );
+    throw new AppError(`Only ${selectedTicket.availableSeats} seats left`, 400);
   }
 
-  const totalAmountPaise = selectedTicket.price * quantity * 100;
-
-  const razorpayOrder = await razorpay.orders.create({
-    amount: totalAmountPaise,
-    currency: "INR",
-    receipt: `receipt_${Date.now()}`,
-    notes: {
-      eventId,
-      userId: userId.toString(),
-      ticketType,
-      quantity: quantity.toString(),
-    },
-  });
+  const totalAmount = selectedTicket.price * quantity;
+  const totalAmountPaise = totalAmount * 100;
 
   const booking = await Booking.create({
     user: userId,
@@ -53,10 +36,22 @@ export const createOrder = async ({
     ticketType,
     bookingId: generateBookingId(),
     quantity,
-    totalAmount: totalAmountPaise,
-    razorpayOrderId: razorpayOrder.id,
+    totalAmount,
     paymentStatus: "pending",
+    bookingStatus: "pending",
   });
+
+  const razorpayOrder = await razorpay.orders.create({
+    amount: totalAmountPaise,
+    currency: "INR",
+    receipt: `receipt_${Date.now()}`,
+    notes: {
+      bookingId: booking._id.toString(),
+    },
+  });
+
+  booking.razorpayOrderId = razorpayOrder.id;
+  await booking.save();
 
   return {
     orderId: razorpayOrder.id,
@@ -74,48 +69,33 @@ export const verifyPayment = async ({
   bookingId,
 }) => {
   const body = razorpayOrderId + "|" + razorpayPaymentId;
+
   const expected = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
     .update(body)
     .digest("hex");
 
   if (expected !== razorpaySignature) {
-    await Booking.findByIdAndUpdate(bookingId, {
-      paymentStatus: "fail",
-    });
-
-    throw new AppError("Payment verification failed - invalid signature", 400);
+    throw new AppError("Invalid signature", 400);
   }
 
   const booking = await Booking.findById(bookingId);
-
-  if (!booking) {
-    throw new AppError("Booking not found", 404);
-  }
+  if (!booking) throw new AppError("Booking not found", 404);
 
   if (booking.paymentStatus === "success") {
     return { booking, message: "Already confirmed" };
   }
 
+  booking.paymentStatus = "success";
+  booking.bookingStatus = "processing";
   booking.razorpayPaymentId = razorpayPaymentId;
   booking.razorpaySignature = razorpaySignature;
-  booking.paymentStatus = "success";
 
   await booking.save();
 
-  await Event.findOneAndUpdate(
-    {
-      _id: booking.event,
-      "ticketTypes.type": booking.ticketType,
-    },
-    {
-      $inc: {
-        "ticketTypes.$.availableSeats": -booking.quantity,
-      },
-    },
-  );
-
   const populated = await booking.populate("event", "title date location");
+
+  console.log(populated,"populated")
 
   return populated;
 };

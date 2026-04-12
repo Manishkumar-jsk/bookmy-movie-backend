@@ -57,3 +57,23 @@ export const bookingService = async ({
 
   return booking;
 };
+
+export const getBookingStatusService = async ({ id }) => {
+  const booking = await Booking.find(
+    { _id: id },
+    {
+      _id: 1,
+      user: 1,
+      event: 1,
+      bookingId: 1,
+      ticketType: 1,
+      paymentStatus: 1,
+      bookingStatus: 1,
+    },
+  ).populate("event", "title date location");
+
+  if (!booking) {
+    throw new AppError("Booking not found");
+  }
+  return booking;
+};
