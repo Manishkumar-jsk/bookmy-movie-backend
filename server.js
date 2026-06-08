@@ -13,12 +13,16 @@ import paymentRoutes from "./routes/payment.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import adminDashboardRoutes from "./routes/admin_dashboard.routes.js"
 import cookieParser from "cookie-parser";
+import http from "http";
+import { getIo, initSocket } from "./socket/socket.js";
 import path from "path";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
+initSocket(server)
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
@@ -41,6 +45,6 @@ app.use("/", webhookRoutes);
 
 app.use(Error);
 
-app.listen(PORT, () =>
+server.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`),
 );

@@ -1,12 +1,14 @@
 //models
 import Event from "../models/Event.js";
 import Category from "../models/Category.js";
+import Notification from "../models/Notification.js";
 
 //utils
 import AppError from "../utils/AppError.js";
 
 //validations
 import { createEventSchema, idSchema } from "../validation/event.schema.js";
+import { getIo } from "../socket/socket.js";
 
 export const createEventService = async ({
   title,
@@ -18,7 +20,12 @@ export const createEventService = async ({
   category,
   ticketTypes,
 }) => {
-  console.log(ticketTypes, "ticbh");
+  const io = getIo();
+  const sockets = await io.in("users").fetchSockets();
+  console.log(
+    "Users room sockets:",
+    sockets.map((s) => s.id),
+  );
 
   const parsed = createEventSchema.safeParse({
     title,
@@ -35,13 +42,29 @@ export const createEventService = async ({
   const data = parsed?.data;
   const categorys = await Category.findOne({ name: category });
 
-  console.log(data, "data");
+  if (!categorys) {
+    throw new AppError("Category not found", 404);
+  }
 
   const event = await Event.create({
     ...data,
     image: image,
     createdBy: userId,
     category: categorys._id,
+  });
+
+  const notification = await Notification.create({
+    user: userId,
+    isGlobal: true,
+    title: title,
+    message: description,
+    type: "Event",
+    referenceId: event?._id,
+  });
+
+  io.to("users").emit("new-notification", {
+    title: title,
+    message: description,
   });
 
   return event;

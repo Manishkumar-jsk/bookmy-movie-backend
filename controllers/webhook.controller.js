@@ -1,11 +1,12 @@
 import crypto from "crypto";
 import Booking from "../models/Booking.js";
 import Event from "../models/Event.js";
+import { getIo } from "../socket/socket.js";
 
 export const razorpayWebhook = async (req, res) => {
   try {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    console.log("webhookk")
+    const io = getIo();
 
     const signature = req.headers["x-razorpay-signature"];
 
@@ -37,6 +38,12 @@ export const razorpayWebhook = async (req, res) => {
 
       booking.paymentStatus = "success";
       booking.bookingStatus = "success";
+
+      io.to(booking.user).emit("new-notification", {
+        title: "Ticket Confirmed",
+        message: "Your booking is successful",
+      });
+
       booking.razorpayPaymentId = payment.id;
 
       await booking.save();

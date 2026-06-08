@@ -13,8 +13,6 @@ export const createEvent = async (req, res, next) => {
     const { title, description, date, location, ticketTypes, category } =
       req.body;
 
-    console.log(req.file,"req file")
-
     const image = req.file
       ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
       : "";
@@ -35,6 +33,8 @@ export const createEvent = async (req, res, next) => {
       })),
     });
 
+    const sockets = await io.in("users").fetchSockets();
+
     res.status(201).json({
       success: true,
       message: "event created successfully",
@@ -44,12 +44,12 @@ export const createEvent = async (req, res, next) => {
   }
 };
 
-export const updateEvent = async (req,res,next) => {
+export const updateEvent = async (req, res, next) => {
   try {
-    const { id,title, description, date, location, ticketTypes, category } =
+    const { id, title, description, date, location, ticketTypes, category } =
       req.body;
-    
-     const image = req.file
+
+    const image = req.file
       ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
       : "";
 
@@ -76,9 +76,9 @@ export const updateEvent = async (req,res,next) => {
       message: "Event updated successfully",
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 export const getEvents = async (req, res, next) => {
   try {
@@ -113,11 +113,11 @@ export const deleteEvent = async (req, res, next) => {
   }
 };
 
-export const eventsLocation = async(req,res,next) => {
+export const eventsLocation = async (req, res, next) => {
   try {
     const locations = await Event.find({}).distinct("location");
-    res.status(200).json({success:true,locations})
+    res.status(200).json({ success: true, locations });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
