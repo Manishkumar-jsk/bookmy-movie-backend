@@ -9,6 +9,8 @@ import AppError from "../utils/AppError.js";
 //validations
 import { createEventSchema, idSchema } from "../validation/event.schema.js";
 import { getIo } from "../socket/socket.js";
+import redisClient from "../config/redis.js";
+import { deleteCache, getCache, setCache } from "../utils/cache.js";
 
 export const createEventService = async ({
   title,
@@ -20,13 +22,6 @@ export const createEventService = async ({
   category,
   ticketTypes,
 }) => {
-  const io = getIo();
-  const sockets = await io.in("users").fetchSockets();
-  console.log(
-    "Users room sockets:",
-    sockets.map((s) => s.id),
-  );
-
   const parsed = createEventSchema.safeParse({
     title,
     description,
@@ -53,14 +48,24 @@ export const createEventService = async ({
     category: categorys._id,
   });
 
+  const cacheKey = "events:list";
+  await deleteCache(cacheKey)
+
   const notification = await Notification.create({
     user: userId,
     isGlobal: true,
     title: title,
     message: description,
-    type: "Event",
+    type: "EVENT",
     referenceId: event?._id,
   });
+
+  const io = getIo();
+  const sockets = await io.in("users").fetchSockets();
+  console.log(
+    "Users room sockets:",
+    sockets.map((s) => s.id),
+  );
 
   io.to("users").emit("new-notification", {
     title: title,
@@ -75,7 +80,16 @@ export const getEventsService = async (location) => {
   if (location) {
     filter.location = { $regex: location, $options: "i" };
   }
+
+  // const cacheKey = "events:list";
+  // const cacheEvents = await getCache(cacheKey);
+
+  // if(cacheEvents){
+  //   return cacheEvents;
+  // }
+
   const events = await Event.find(filter).populate("category", "name");
+  // await setCache(cacheKey,events,300)
 
   return events;
 };
@@ -87,7 +101,16 @@ export const getEventsByIdService = async ({ id }) => {
   if (!parsed.success) {
     throw new AppError(parsed.error.issues[0].message, 400);
   }
+
+  const cacheKey = `events:${id}`;
+  const cacheEvent = await getCache(cacheKey);
+
+  if(cacheEvent){
+    return cacheEvent;
+  }
+
   const event = await Event.findById(data.id);
+  await setCache(cacheKey,event,300)
 
   return event;
 };
@@ -146,6 +169,10 @@ export const updateEventService = async ({
     { new: true },
   );
 
+  const allEventsKey = "events:list";
+  const eventById = `events:${id}`;
+  await Promise.all([deleteCache(allEventsKey),deleteCache(eventById)])
+
   return event;
 };
 
@@ -158,6 +185,10 @@ export const deleteEventService = async ({ id }) => {
   }
 
   const event = await Event.findByIdAndDelete(data.id);
+
+  const allEventsKey = "events:list";
+  const eventById = `events:${id}`;
+  await Promise.all([deleteCache(allEventsKey),deleteCache(eventById)])
 
   return event;
 };

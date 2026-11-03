@@ -3,6 +3,7 @@ import Event from "../models/Event.js";
 import Booking from "../models/Booking.js";
 import AppError from "../utils/AppError.js";
 import crypto from "crypto";
+import { publishBookingEmail } from "../producers/booking.producer.js";
 
 export const createOrder = async ({
   eventId,
@@ -52,7 +53,7 @@ export const createOrder = async ({
 
   booking.razorpayOrderId = razorpayOrder.id;
   await booking.save();
-
+  
   return {
     orderId: razorpayOrder.id,
     amount: totalAmountPaise,

@@ -1,6 +1,6 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+import multer from "multer";
+import path from "path";
+import fs from "fs"
 
 const uploadDir = "uploads";
 if (!fs.existsSync(uploadDir)) {
@@ -21,7 +21,9 @@ const storage = multer.diskStorage({
 
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg","text/csv"];
+
+  console.log(file.mimetype,"allowed")
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -29,10 +31,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+export const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-module.exports = { upload };

@@ -2,6 +2,7 @@ import crypto from "crypto";
 import Booking from "../models/Booking.js";
 import Event from "../models/Event.js";
 import { getIo } from "../socket/socket.js";
+import { publishBookingEmail } from "../producers/booking.producer.js";
 
 export const razorpayWebhook = async (req, res) => {
   try {
@@ -45,6 +46,11 @@ export const razorpayWebhook = async (req, res) => {
       });
 
       booking.razorpayPaymentId = payment.id;
+
+      await publishBookingEmail({
+    email: "manishsharma65263@gmail.com",
+    eventName: "React Conference",
+});
 
       await booking.save();
 

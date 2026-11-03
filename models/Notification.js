@@ -17,11 +17,11 @@ const notificationSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      enum: ["EVENT", "BOOKING", "PAYMENT"],
       required: true,
     },
     type: {
       type: String,
+      enum: ["EVENT", "BOOKING", "PAYMENT"],
       required: true,
     },
     referenceId: {

@@ -1,0 +1,7 @@
+.env
+.env1
+node_modules
+.git
+mongo-backup
+.gitignore
+.dockerignore

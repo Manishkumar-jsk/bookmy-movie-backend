@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -16,20 +16,29 @@
   "bugs": {
     "url": "https://github.com/Manishkumar-jsk/bookmy-movie-backend/issues"
   },
+  "type": "module",
   "homepage": "https://github.com/Manishkumar-jsk/bookmy-movie-backend#readme",
   "description": "",
   "dependencies": {
+    "amqplib": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "crypto": "^1.0.1",
+    "csv-parser": "^3.2.1",
+    "csv-writer": "^1.6.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.6",
     "multer": "^2.1.1",
+    "nodemailer": "^9.0.5",
+    "rate-limit-redis": "^6.0.1",
     "razorpay": "^2.9.6",
+    "redis": "^6.2.0",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {

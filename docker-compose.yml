@@ -1,0 +1,44 @@
+services:
+  api:
+    build: .
+    container_name: event-management-api
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  mongodb:
+    image: mongo:7
+    container_name: event-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    container_name: event-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: event-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mongo_data:
