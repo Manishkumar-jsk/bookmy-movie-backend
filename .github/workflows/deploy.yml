@@ -28,7 +28,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::594559485338:role/BookMyMovieGitHubActionsRole
-          aws-region: ap-south-2
+          aws-region: 
 
       - name: Login to Amazon ECR
         id: login-ecr
